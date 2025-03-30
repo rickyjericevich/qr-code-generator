@@ -1,9 +1,7 @@
 import os
 import sys
 import math
-from pprint import pprint
 import numpy as np
-import numpy.typing as npt
 
 
 def draw_qr_grid(qr_grid):
@@ -32,13 +30,7 @@ def print_qr_grid(qr_grid):
     pass
 
 
-def validate_position_square_length(length: int) -> None:
-    assert (
-        length >= 4 and length % 2 == 0
-    ), f"position square length must be an even integer greater than or equal to 4"
-
-
-def make_position_pattern(pos_square_size: int) -> list[list[int]]:
+def make_position_pattern(pos_square_size):
     """
     Creates the position pattern of size pos_square_size and returning it as a
     2-dimensional array of int.
@@ -51,13 +43,16 @@ def make_position_pattern(pos_square_size: int) -> list[list[int]]:
     """
 
     validate_position_square_length(pos_square_size)
-    start_with_zeros = pos_square_size % 4 == 0
+
+    start_with_zeros = not pos_square_size % 4 == 0
     inner_square_length = pos_square_size - 1
+
     square = make_alternating_square_matrix(
         inner_square_length,
         start_with_ones=not start_with_zeros,
         ignore_center_element=True,
     )
+
     square.append([int(start_with_zeros)] * inner_square_length)
     for row in square:
         row.append(int(start_with_zeros))
@@ -65,18 +60,13 @@ def make_position_pattern(pos_square_size: int) -> list[list[int]]:
     return square
 
 
-def validate_alignment_square_length(length: int) -> None:
+def validate_position_square_length(length):
     assert (
-        length > 0 and (length - 1) % 4 == 0
-    ), f"alignment square length must be a positive integer in the series 1, 5, 9, 13, ..."
+        length >= 4 and length % 2 == 0
+    ), f"position square length must be an even integer greater than or equal to 4"
 
 
-def make_square_matrix(length: int, fill_with: int = 0) -> list[list[int]]:
-    assert length > 0, f"square matrix length must be greater than 0 (got {length})"
-    return [[fill_with] * length for _ in range(length)]
-
-
-def make_alignment_pattern(align_square_size: int) -> list[list[int]]:
+def make_alignment_pattern(align_square_size):
     """
     Creates the alignment pattern of size align_square_size and returning it as
     a 2-dimensional array of int.
@@ -91,18 +81,23 @@ def make_alignment_pattern(align_square_size: int) -> list[list[int]]:
     return make_alternating_square_matrix(align_square_size, start_with_ones=True)
 
 
+def validate_alignment_square_length(length):
+    assert (
+        length > 0 and (length - 1) % 4 == 0
+    ), f"alignment square length must be a positive integer in the series 1, 5, 9, 13, ..."
+
+
 def make_alternating_square_matrix(
-    length: int, start_with_ones: int = True, ignore_center_element=False
-) -> list[list[int]]:  # npt.NDArray[np.uint8]:
+    length, start_with_ones=True, ignore_center_element=False
+):
     square = np.ones(
         [length] * 2, dtype=np.uint8
     )  # make_square_matrix(align_square_size, fill_with=1)
-    num_diagonals_to_center = math.ceil(length / 2)
     initial_diagonal_idx = int(start_with_ones)
+    num_diagonals_to_center = math.ceil(length / 2)
+    final_diagonal_idx = num_diagonals_to_center - int(ignore_center_element)
 
-    for min_idx in range(
-        initial_diagonal_idx, num_diagonals_to_center - int(ignore_center_element), 2
-    ):
+    for min_idx in range(initial_diagonal_idx, final_diagonal_idx, 2):
         max_idx = length - min_idx - 1
 
         square[min_idx, min_idx:max_idx] = 0
@@ -111,6 +106,11 @@ def make_alternating_square_matrix(
         square[min_idx:max_idx, max_idx] = 0
 
     return square.tolist()
+
+
+def make_square_matrix(length, fill_with=0):
+    assert length > 0, f"square matrix length must be greater than 0 (got {length})"
+    return [[fill_with] * length for _ in range(length)]
 
 
 def rotate_pattern_clockwise(data):
