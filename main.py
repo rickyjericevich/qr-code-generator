@@ -1,7 +1,5 @@
-import os
 import sys
 import math
-import numpy as np
 
 
 def draw_qr_grid(qr_grid):
@@ -53,9 +51,11 @@ def make_position_pattern(pos_square_size):
         ignore_center_element=True,
     )
 
-    square.append([int(start_with_zeros)] * inner_square_length)
-    for row in square:
-        row.append(int(start_with_zeros))
+    outer_vals = int(start_with_zeros)
+    square.append([outer_vals] * inner_square_length)  # bottom row of zeros/ones
+
+    for row in square:  # right column of zeros/ones
+        row.append(outer_vals)
 
     return square
 
@@ -90,22 +90,25 @@ def validate_alignment_square_length(length):
 def make_alternating_square_matrix(
     length, start_with_ones=True, ignore_center_element=False
 ):
-    square = np.ones(
-        [length] * 2, dtype=np.uint8
-    )  # make_square_matrix(align_square_size, fill_with=1)
+    square = make_square_matrix(length, fill_with=1)
     initial_diagonal_idx = int(start_with_ones)
     num_diagonals_to_center = math.ceil(length / 2)
     final_diagonal_idx = num_diagonals_to_center - int(ignore_center_element)
 
     for min_idx in range(initial_diagonal_idx, final_diagonal_idx, 2):
         max_idx = length - min_idx - 1
+        zeros = [0] * (max_idx - min_idx)
 
-        square[min_idx, min_idx:max_idx] = 0
-        square[max_idx, min_idx + 1 : max_idx + 1] = 0
-        square[min_idx + 1 : max_idx + 1, min_idx] = 0
-        square[min_idx:max_idx, max_idx] = 0
+        square[min_idx][min_idx:max_idx] = zeros  # top row of zeros
+        square[max_idx][min_idx + 1 : max_idx + 1] = zeros  # bottom row of zeros
 
-    return square.tolist()
+        for row in square[min_idx + 1 : max_idx + 1]:  # left column of zeros
+            row[min_idx] = 0
+
+        for row in square[min_idx:max_idx]:  # right column of zeros
+            row[max_idx] = 0
+
+    return square
 
 
 def make_square_matrix(length, fill_with=0):
@@ -228,7 +231,7 @@ def encode_snake(size, message, pos_square_size, align_square_size):
 def main(args):
     # TODO: put logic here to check if the command-line arguments are correct,
     # and then call the game functions using these arguments.
-    print(np.matrix(make_position_pattern(6)))
+    print(make_position_pattern(6))
     # print(make_alignment_pattern(9))
 
 
