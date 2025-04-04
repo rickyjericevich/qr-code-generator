@@ -116,20 +116,33 @@ def rotate_position_pattern_clockwise(position_pattern):
     Args:
         position_pattern (2D array of int): The position pattern that should be rotated
     """
-    # TODO: implement this function.
-    return position_pattern
+    return rotate_square_matrix_clockwise(position_pattern, first_layer_only=True)
 
 
-def rotate_square_matrix_clockwise(data):
+def rotate_square_matrix_clockwise(data, first_layer_only=False):
     """
     Rotates the values in data clock-wise by 90 degrees
 
     Args:
         data (2D array of int): The array that should be rotated
     """
-    # TODO: implement this function.
-    # remove the following line when you add something to this function:
-    pass
+    length = len(data)
+    final_diagonal_idx = 1 if first_layer_only else length // 2
+
+    for min_idx in range(final_diagonal_idx):
+
+        max_idx = length - min_idx - 1
+
+        for idx in range(min_idx, max_idx):
+            opposite_idx = length - idx - 1
+
+            temp = data[min_idx][idx]  # store top element
+            data[min_idx][idx] = data[opposite_idx][min_idx]  # replace top with left
+            data[opposite_idx][min_idx] = data[max_idx][opposite_idx]  # replace left with bottom
+            data[max_idx][opposite_idx] = data[idx][max_idx]  # replace bottom with right
+            data[idx][max_idx] = temp  # replace right with top
+
+    return data
 
 
 def add_data_at_anchor(qr_grid, anchor_x, anchor_y, data):
