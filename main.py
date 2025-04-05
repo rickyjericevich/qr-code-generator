@@ -138,9 +138,9 @@ def rotate_square_matrix_clockwise(data, first_layer_only=False):
 
             temp = data[min_idx][idx]  # store top element
             data[min_idx][idx] = data[opposite_idx][min_idx]  # replace top with left
-            data[opposite_idx][min_idx] = data[max_idx][opposite_idx]  # replace left with bottom
-            data[max_idx][opposite_idx] = data[idx][max_idx]  # replace bottom with right
-            data[idx][max_idx] = temp  # replace right with top
+            data[opposite_idx][min_idx] = data[max_idx][opposite_idx]  # left with bottom
+            data[max_idx][opposite_idx] = data[idx][max_idx]  # bottom with right
+            data[idx][max_idx] = temp  # right with top
 
     return data
 
@@ -402,15 +402,12 @@ def parse_payload_param(payload, use_real_layout, num_unreserved_bits_in_qr_grid
         and num_payload_chars < NUM_MESSAGE_LENGTH_BITS - 1
         and num_padding_bits >= 0
     ):
-        payload_ascii_codes = [ord(char) for char in payload]
-        payload_bits = [bit for i in payload_ascii_codes for bit in int_to_8_bits(i)]
-        padding_bits = make_padding_bits(num_padding_bits)
         return (
             ENCODING_INFO
-            + int_to_8_bits(len(payload_ascii_codes))  # message length byte
-            + payload_bits
+            + int_to_8_bits(num_payload_chars)  # message length byte
+            + [bit for char in payload for bit in int_to_8_bits(ord(char))] # payload bits
             + TERMINATOR_PATTERN
-            + padding_bits
+            + make_padding_bits(num_padding_bits)
             # below is for hand in 3 only
             # + get_error_codewords(payload_ascii_codes, NUM_ERROR_CORRECTION_WORDS)
             # + REMAINDER_BITS
